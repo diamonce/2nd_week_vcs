@@ -1,4 +1,4 @@
-module github.com/diamonce/2nd_week_vc
+module github.com/diamonce/dok_tele_status
 
 go 1.19
 
