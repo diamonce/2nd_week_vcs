@@ -1,4 +1,4 @@
-module github.com/den-vasyliev/kbot
+module github.com/diamonce/2nd_week_vc
 
 go 1.19
 
