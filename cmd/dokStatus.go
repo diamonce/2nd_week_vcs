@@ -4,8 +4,10 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -18,10 +20,69 @@ var (
 	TeleToken = os.Getenv("TELE_TOKEN")
 )
 
+const (
+	statusURL = "http://34.116.191.131/status"
+)
+
+type ObjectStatus struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
+func getServiceStatus(serviceName string) (ObjectStatus, error) {
+	resp, err := http.Get(statusURL + "/" + serviceName)
+	if err != nil {
+		return ObjectStatus{}, err
+	}
+	defer resp.Body.Close()
+
+	// Decode JSON into struct
+	var status ObjectStatus
+	err = json.NewDecoder(resp.Body).Decode(&status)
+	if err != nil {
+		return ObjectStatus{}, err
+	}
+
+	return status, nil
+}
+
+func getStatuses() ([]ObjectStatus, error) {
+	resp, err := http.Get(statusURL)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var serviceList []string
+	err = json.NewDecoder(resp.Body).Decode(&serviceList)
+	if err != nil {
+		return nil, err
+	}
+
+	var statuses []ObjectStatus
+	for _, serviceName := range serviceList {
+		//	var service_cs string
+		service_cs := "unknown"
+
+		status, err := getServiceStatus(serviceName)
+		if err != nil {
+			fmt.Printf("Error retrieving status for %s: %v\n", serviceName, err)
+			continue
+		} else {
+			service_cs = status.Status
+		}
+
+		statuses = append(statuses, ObjectStatus{Name: serviceName, Status: service_cs})
+	}
+
+	return statuses, nil
+}
+
 // docStatusCmd represents the docStatus command
 var docStatusCmd = &cobra.Command{
-	Use:   "docStatus",
-	Short: "A brief description of your command",
+	Use:     "docStatus",
+	Aliases: []string{"start"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -47,15 +108,28 @@ to quickly create a Cobra application.`,
 			var (
 				err error
 			)
-			log.Print(m.Message().Payload, m.Text())
-			payload := m.Message().Payload
+			log.Print("payload-->"+m.Message().Payload+"<--", "message->"+m.Text()+"<-")
+			//payload := m.Message().Payload
+			payload := m.Text()
 
 			switch payload {
-			case "hello":
+			case "version":
 				err = m.Send(fmt.Sprintf("Hello I'm DOK Status %s!", appVersion))
+			case "status":
+				statuses, err := getStatuses()
+				if err != nil {
+					return err
+				}
+
+				statusMessage := "Status for monitored objects:\n"
+				for _, status := range statuses {
+					statusMessage += fmt.Sprintf("%s: %s\n", status.Name, status.Status)
+				}
+
+				return m.Send(statusMessage)
 
 			default:
-				err = m.Send("Usage: /s red|amber|green")
+				err = m.Send("Usage: status {service_id}")
 			}
 
 			return err
