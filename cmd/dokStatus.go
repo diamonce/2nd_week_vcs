@@ -1,13 +1,21 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"github.com/spf13/cobra"
+	telebot "gopkg.in/telebot.v3"
+)
+
+var (
+	// TeleToken bot
+	TeleToken = os.Getenv("TELE_TOKEN")
 )
 
 // docStatusCmd represents the docStatus command
@@ -21,7 +29,40 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("docStatus called")
+		fmt.Println("dokStatus called")
+
+		kbot, err := telebot.NewBot(telebot.Settings{
+			URL:    "",
+			Token:  TeleToken,
+			Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+		})
+
+		if err != nil {
+			log.Fatalf("Plaese check TELE_TOKEN env variable. %s", err)
+			return
+		}
+
+		kbot.Handle(telebot.OnText, func(m telebot.Context) error {
+
+			var (
+				err error
+			)
+			log.Print(m.Message().Payload, m.Text())
+			payload := m.Message().Payload
+
+			switch payload {
+			case "hello":
+				err = m.Send(fmt.Sprintf("Hello I'm DOK Status %s!", appVersion))
+
+			default:
+				err = m.Send("Usage: /s red|amber|green")
+			}
+
+			return err
+
+		})
+
+		kbot.Start()
 	},
 }
 
