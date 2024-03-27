@@ -92,7 +92,7 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("dokStatus called")
 
-		kbot, err := telebot.NewBot(telebot.Settings{
+		dok_tele_status, err := telebot.NewBot(telebot.Settings{
 			URL:    "",
 			Token:  TeleToken,
 			Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
@@ -103,7 +103,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		kbot.Handle(telebot.OnText, func(m telebot.Context) error {
+		dok_tele_status.Handle(telebot.OnText, func(m telebot.Context) error {
 
 			var (
 				err error
@@ -136,7 +136,7 @@ to quickly create a Cobra application.`,
 
 		})
 
-		kbot.Start()
+		dok_tele_status.Start()
 	},
 }
 
