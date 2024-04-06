@@ -1,7 +1,9 @@
 FROM golang as builder
 WORKDIR /src
 COPY . .
-RUN CGO_ENABLED=0 go build -o dok_tele_status 
+RUN go install golang.org/x/lint/golint@latest
+RUN make build
+#RUN CGO_ENABLED=0 go build -o dok_tele_status 
 
 FROM alpine
 COPY --from=builder /src/dok_tele_status .
