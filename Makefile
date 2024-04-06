@@ -1,10 +1,14 @@
+.PHONY: all linux_arm linux
+
 APP=dok_tele_status
-REGISTRY=dchernenko
-VERSION=production
+#REGISTRY=dchernenko
+REGISTRY=europe-central2-docker.pkg.dev/ethereal-runner-417315/dc-docker-repo
 
-#VERSION=$(shell git describe --tags --abbrev=0 --always)-$(shell git rev-parse --short HEAD)
+VERSION=$(shell git describe --tags --abbrev=0 --always)-$(shell git rev-parse --short HEAD)
+#VERSION=production
 
-TARGET_OS=$(shell uname -s | tr '[:upper:]' '[:lower:]') # linux darwin windows
+TARGET_OS=$(shell uname -s | tr '[:upper:]' '[:lower:]' | tr -d ' ' )
+# linux darwin windows
 
 ifeq ($(shell uname -m),i386)
 	TARGET_ARCH := 386
@@ -26,8 +30,40 @@ endif
 # Force override
 TARGET_OS=linux
 TARGET_ARCH=amd64
-
 #export TARGET_ARCH
+ 
+all: linux linux_arm 
+#linux_arm 
+#darwin  
+#windows
+
+linux: set_linux image push 
+linux_arm: set_linux_arm image push
+
+darwin: set_darwin image push 
+darwin_arm: set_darwin_arm image push
+
+windows: set_windows image push 
+
+set_linux: 
+	 $(eval TARGET_OS := linux)
+	 $(eval TARGET_ARCH := amd64)
+
+set_linux_arm: 
+	 $(eval TARGET_OS := linux)
+	 $(eval TARGET_ARCH := arm64)
+
+set_darwin: 
+	 $(eval TARGET_OS := darwin)
+	 $(eval TARGET_ARCH := amd64)
+
+set_darwin_arm: 
+	 $(eval TARGET_OS := darwin)
+	 $(eval TARGET_ARCH := arm64)	
+
+set_windows: 
+	 $(eval TARGET_OS := windows)
+	 $(eval TARGET_ARCH := x86_64)
 
 format:
 	gofmt -s -w ./
@@ -58,4 +94,5 @@ push:
 	docker push ${REGISTRY}/${APP}:${VERSION}-${TARGET_ARCH}
 
 clean:
-	rm -rf dok_tele_status
+	rm -rf ${APP}
+	docker rmi ${REGISTRY}/${APP}:${VERSION}-${TARGET_ARCH}
