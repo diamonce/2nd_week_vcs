@@ -4,7 +4,7 @@ VERSION=production
 
 #VERSION=$(shell git describe --tags --abbrev=0 --always)-$(shell git rev-parse --short HEAD)
 
-TARGET_OS=$(shell uname -s | tr '[:upper:]' '[:lower:]')
+TARGET_OS=$(shell uname -s | tr '[:upper:]' '[:lower:]') # linux darwin windows
 
 ifeq ($(shell uname -m),i386)
 	TARGET_ARCH := 386
@@ -22,6 +22,10 @@ ifeq ($(shell uname -m),arm)
 		TARGET_ARCH := arm
 	endif
 endif
+
+# Force override
+TARGET_OS=linux
+TARGET_ARCH=amd64
 
 #export TARGET_ARCH
 
@@ -47,7 +51,8 @@ build: debug format lint test config
 
 image:
 	echo "Building ${REGISTRY}/${APP}:${VERSION}-${TARGET_ARCH}"
-	docker build -t ${REGISTRY}/${APP}:${VERSION}-${TARGET_ARCH} -f Dockerfile .
+#	docker build -t ${REGISTRY}/${APP}:${VERSION}-${TARGET_ARCH} -f Dockerfile .
+	docker buildx build --platform ${TARGET_OS}/${TARGET_ARCH} -t ${REGISTRY}/${APP}:${VERSION}-${TARGET_ARCH} -f Dockerfile .
 
 push:
 	docker push ${REGISTRY}/${APP}:${VERSION}-${TARGET_ARCH}
