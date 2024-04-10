@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dok-tele-status-demo.fullname" . }}-dok-tele-status-demo
+  labels:
+    app: dok-tele-status
+  {{- include "dok-tele-status-demo.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.dokTeleStatusDemo.replicas }}
+  revisionHistoryLimit: {{ .Values.dokTeleStatusDemo.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: dok-tele-status
+    {{- include "dok-tele-status-demo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: dok-tele-status
+      {{- include "dok-tele-status-demo.selectorLabels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.dokTeleStatusDemo.dokTeleStatus.image.repository }}:{{ .Values.dokTeleStatusDemo.dokTeleStatus.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.dokTeleStatusDemo.dokTeleStatus.imagePullPolicy }}
+        name: dok-tele-status
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 30

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  generation: 18
+  labels:
+    app: dok-tele-status
+  name: dok-tele-status-demo
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: dok-tele-status
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: dok-tele-status
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - env:
+          image: dchernenko/dok_tele_status:production
+          imagePullPolicy: Always
+          name: dok-tele-status
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 3
+  observedGeneration: 18
+  readyReplicas: 3
+  replicas: 3
+  updatedReplicas: 3

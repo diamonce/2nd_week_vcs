@@ -1,0 +1,9 @@
+dokTeleStatusDemo:
+  dokTeleStatus:
+    image:
+      repository: dchernenko/dok_tele_status
+      tag: production
+    imagePullPolicy: Always
+  replicas: 3
+  revisionHistoryLimit: 10
+kubernetesClusterDomain: cluster.local
