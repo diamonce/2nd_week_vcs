@@ -1,7 +1,8 @@
 dokTeleStatusDemo:
   dokTeleStatus:
     env:
-      teleToken: ${TELE_TOKEN}
+      - name: TELE_TOKEN
+        value: ${TELE_TOKEN}
     image:
       repository: dchernenko/dok_tele_status
       tag: production

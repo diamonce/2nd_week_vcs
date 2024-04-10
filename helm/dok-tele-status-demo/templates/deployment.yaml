@@ -23,7 +23,7 @@ spec:
       containers:
       - env:
         - name: TELE_TOKEN
-          value: {{ quote .Values.dokTeleStatusDemo.dokTeleStatus.env.teleToken }}
+          value: {{ .Values.TELE_TOKEN }}
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         image: {{ .Values.dokTeleStatusDemo.dokTeleStatus.image.repository }}:{{ .Values.dokTeleStatusDemo.dokTeleStatus.image.tag
