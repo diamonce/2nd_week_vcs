@@ -2,7 +2,7 @@ dokTeleStatusDemo:
   dokTeleStatus:
     env:
       - name: TELE_TOKEN
-        value: ${TELE_TOKEN}
+        value: ${env.tele_token}
     image:
       repository: dchernenko/dok_tele_status
       tag: production
