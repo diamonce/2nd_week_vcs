@@ -4,6 +4,7 @@ metadata:
   name: {{ include "dok-tele-status-demo.fullname" . }}-dok-tele-status-demo
   labels:
     app: dok-tele-status
+    argocd.argoproj.io/instance: dok-tele-status-demo
   {{- include "dok-tele-status-demo.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.dokTeleStatusDemo.replicas }}
@@ -21,6 +22,8 @@ spec:
       automountServiceAccountToken: true
       containers:
       - env:
+        - name: TELE_TOKEN
+          value: {{ quote .Values.dokTeleStatusDemo.dokTeleStatus.env.teleToken }}
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         image: {{ .Values.dokTeleStatusDemo.dokTeleStatus.image.repository }}:{{ .Values.dokTeleStatusDemo.dokTeleStatus.image.tag

@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  generation: 18
+  generation: 19
   labels:
     app: dok-tele-status
+    argocd.argoproj.io/instance: dok-tele-status-demo
   name: dok-tele-status-demo
   namespace: default
 spec:
@@ -27,6 +28,8 @@ spec:
       automountServiceAccountToken: true
       containers:
         - env:
+            - name: TELE_TOKEN
+              value: ${TELE_TOKEN}
           image: dchernenko/dok_tele_status:production
           imagePullPolicy: Always
           name: dok-tele-status
@@ -41,8 +44,9 @@ spec:
       shareProcessNamespace: false
       terminationGracePeriodSeconds: 30
 status:
-  availableReplicas: 3
-  observedGeneration: 18
-  readyReplicas: 3
-  replicas: 3
-  updatedReplicas: 3
+  availableReplicas: 2
+  observedGeneration: 19
+  readyReplicas: 2
+  replicas: 4
+  unavailableReplicas: 2
+  updatedReplicas: 2
